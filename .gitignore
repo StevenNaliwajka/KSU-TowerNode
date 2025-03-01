@@ -170,3 +170,5 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 !Codebase/Generic_VENV_Manager/packages.json
+venv
+.idea
