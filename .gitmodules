@@ -1,0 +1,3 @@
+[submodule "Codebase/Generic_VENV_Manger"]
+	path = Codebase/Generic_VENV_Manger
+	url = https://github.com/StevenNaliwajka/Generic_VENV_Manger
