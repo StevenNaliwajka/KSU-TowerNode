@@ -1,5 +1,5 @@
 from Codebase.Generic_VENV_Manger.generic_venv_manager.venv_util import VENVUtil
-from Codebase.Paths.get_project_root import get_project_root
+from Codebase.Pathing.get_project_root import get_project_root
 import sys
 
 def setup():
