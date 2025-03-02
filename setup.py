@@ -1,4 +1,4 @@
-from Codebase.Generic_VENV_Manger.generic_venv_manager.venv_util import VENVUtil
+from Codebase.Generic_VENV_Manger.venv_util import VENVUtil
 from Codebase.Pathing.get_project_root import get_project_root
 import sys
 
