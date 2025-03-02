@@ -7,6 +7,7 @@ from .VENVCodeBase.VENVReadJSON.parse_packages import parse_packages
 from .VENVCodeBase.VENVSupport.ensure_venv_path import ensure_venv_path
 from .VENVCodeBase.VENVSupport.get_python_executable import get_python_executable
 
+
 class VENVUtil:
     @staticmethod
     def setup_venv(venv_destination_folder: str) -> None:
