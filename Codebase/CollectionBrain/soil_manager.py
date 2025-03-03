@@ -1,4 +1,9 @@
+import sys
+from pathlib import Path
 from datetime import time
+
+# Ensure the project root is in sys.path
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 from Codebase.DataCollection.Connection.soil_connection import SoilConnection
 
