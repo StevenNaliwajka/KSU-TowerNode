@@ -1,0 +1,9 @@
+{
+  "pip_packages": [
+    "pyserial"
+  ],
+  "github_packages": [
+    "git+https://github.com/StevenNaliwajka/Generic_FILE_IO"
+  ]
+}
+
