@@ -7,4 +7,4 @@ def get_date_time_formated() -> str:
     # Format as "month-day-year-hour-minute"
     formatted_time = now.strftime("%m-%d-%Y-%H-%M")
 
-    print(formatted_time)
+    return formatted_time
