@@ -10,10 +10,15 @@ from Codebase.DataCollection.Connection.soil_connection import SoilConnection
 
 def soil_manager():
     soil_connection = SoilConnection()
+    print("Soil connection established.")
 
     while True:
+        print("Logging soil data...")
         soil_connection.log_soil_data()
+
+        print("Displaying data...")
         soil_connection.display()
+
         time.sleep(1)
 
 
