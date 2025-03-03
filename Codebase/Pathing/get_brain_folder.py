@@ -4,8 +4,6 @@ from Codebase.Pathing.get_project_root import get_project_root
 
 
 def get_brain_folder() -> Path:
-    root = get_project_root()
-    path = Path(root)
-
-    brain_folder = path.joinpath(root / "CollectionBrain")
+    root = Path(get_project_root())
+    brain_folder = root / "CollectionBrain"
     return brain_folder
