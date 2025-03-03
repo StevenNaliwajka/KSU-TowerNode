@@ -3,7 +3,7 @@ from datetime import time
 from Codebase.DataCollection.Connection.soil_connection import SoilConnection
 
 
-def soil_mananager():
+def soil_manager():
     soil_connection = SoilConnection()
 
     while True:
