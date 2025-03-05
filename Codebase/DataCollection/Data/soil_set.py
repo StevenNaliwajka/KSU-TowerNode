@@ -1,4 +1,4 @@
-from generic_file_io.core.csv_manager.support.csv_append import csv_append
+from generic_file_io.csv_manager.support.csv_append import csv_append
 
 from Codebase.SupportMethods.get_date_time_formated import get_date_time_formated
 
