@@ -4,7 +4,7 @@ import serial
 import atexit
 
 class SoilConnection:
-    def __init__(self, port:str="/dev/ttyUSB1", baudrate:int=9600) -> None:
+    def __init__(self, port:str="/dev/ttyUSB2", baudrate:int=9600) -> None:
         self.ser = serial.Serial(port, baudrate, timeout=1)
         print("Serial connection established.")
 
@@ -15,8 +15,10 @@ class SoilConnection:
         self.moisture_percent = None
         self.temperature = None
 
+        print("Attempting to read from serial...")
         self.log_soil_data()
         # Register cleanup to close the serial connection on exit
+        print("Registering exit function")
         atexit.register(self.close_serial)
 
     def log_soil_data(self) -> None:
