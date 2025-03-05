@@ -30,7 +30,7 @@ class SoilConnection:
         try:
             print("Reading Soil Moisture Data...")
             line = self.ser.readline().decode('utf-8').strip()
-            print("Matching pattern")
+            print(f"line: {line}")
             match = re.search(self.pattern, line)
             print("Data matched")
 
