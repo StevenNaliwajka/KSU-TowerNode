@@ -1,4 +1,5 @@
 import re
+import traceback
 
 import serial
 import atexit
@@ -55,6 +56,7 @@ class SoilConnection:
             print("Stopping script...")
         except Exception as e:
             print(f"Error: {e}")
+            traceback.print_exc()
 
     ## tbd
     def get_set(self, set_num) -> SoilSet:
