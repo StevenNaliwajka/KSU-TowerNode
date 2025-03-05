@@ -1,8 +1,10 @@
 import sys
 from pathlib import Path
 
-# Ensure the project root is in sys.path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+# Dynamically find the project root (assuming it's 3 levels up)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]  # Adjust the number if needed
+sys.path.append(str(PROJECT_ROOT))
 
 from generic_file_io.core.generic_create_folder import generic_create_folder
 
