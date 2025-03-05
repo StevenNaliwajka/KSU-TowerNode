@@ -11,7 +11,7 @@ from Codebase.FileIO.CSV.create_csv import create_csv
 class SoilConnection:
     def __init__(self, port:str="/dev/ttyUSB2", baudrate:int=9600) -> None:
         self.ser = serial.Serial(port, baudrate, timeout=1)
-        print("Serial connection established.")
+        print("Soil Serial connection established.")
 
         # self.pattern = r"Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
         self.pattern = r"Set(\d+): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
@@ -20,32 +20,32 @@ class SoilConnection:
 
         self.csv_type = "SoilData"
 
-        print("Attempting to read from serial...")
+        #  print("Attempting to read from serial...")
         self.log_soil_data()
         # cleanup on exit
-        print("Registering exit function")
+        # print("Registering exit function")
         atexit.register(self.close_serial)
 
     def log_soil_data(self) -> None:
         try:
-            print("Reading Soil Moisture Data...")
+            # print("Reading Soil Moisture Data...")
             line = self.ser.readline().decode('utf-8').strip()
-            print(f"line: {line}")
+            # print(f"line: {line}")
             match = re.search(self.pattern, line)
-            print("Data matched")
+            # print("Data matched")
 
             soil_set_num = int(match.group(1)) -1
             soil_set = self.get_set(soil_set_num)
-            print(f"Soil Set Number: {soil_set_num}")
+            # print(f"Soil Set Number: {soil_set_num}")
 
             if match:
                 moisture = int(match.group(2))
-                print(f"Soil Moisture: {moisture}")
+                # print(f"Soil Moisture: {moisture}")
                 moisture_percent = int(match.group(3))
-                print(f"Soil Moisture Percent: {moisture_percent}")
+                # print(f"Soil Moisture Percent: {moisture_percent}")
                 temperature = float(match.group(4))
-                print(f"Temperature: {temperature}")
-                print("updating data")
+                # print(f"Temperature: {temperature}")
+                # print("updating data")
                 soil_set.update_data(moisture, moisture_percent, temperature)
 
         except KeyboardInterrupt:
@@ -57,7 +57,6 @@ class SoilConnection:
         try:
             soil_set = self.set_list[set_num]
             if soil_set is None:
-                print("Setting not found, creating new one...")
                 soil_set = self.append_set(set_num)
                 return soil_set
             return soil_set
@@ -72,6 +71,7 @@ class SoilConnection:
 
 
     def append_set(self, set_num) -> SoilSet:
+        print("Soil set not found, creating new one...")
         while len(self.set_list) <= set_num:
             self.set_list.append(None)
 
