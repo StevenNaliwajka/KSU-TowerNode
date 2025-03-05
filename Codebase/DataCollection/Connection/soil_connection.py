@@ -22,25 +22,23 @@ class SoilConnection:
         atexit.register(self.close_serial)
 
     def log_soil_data(self) -> None:
-        while True:
-            try:
-                print("Reading Soil Moisture Data...")
-                line = self.ser.readline().decode('utf-8').strip()  # Read and decode data
-                print("Matching pattern")
-                match = re.search(self.pattern, line)  # Match the pattern
-                print("Data matched")
-                if match:
-                    moisture = int(match.group(1))
-                    moisture_percent = int(match.group(2))
-                    temperature = float(match.group(3))
-                    print("updating data")
-                    self.update_data(moisture, moisture_percent, temperature)
+        try:
+            print("Reading Soil Moisture Data...")
+            line = self.ser.readline().decode('utf-8').strip()  # Read and decode data
+            print("Matching pattern")
+            match = re.search(self.pattern, line)  # Match the pattern
+            print("Data matched")
+            if match:
+                moisture = int(match.group(1))
+                moisture_percent = int(match.group(2))
+                temperature = float(match.group(3))
+                print("updating data")
+                self.update_data(moisture, moisture_percent, temperature)
 
-            except KeyboardInterrupt:
-                print("Stopping script...")
-                break
-            except Exception as e:
-                print(f"Error: {e}")
+        except KeyboardInterrupt:
+            print("Stopping script...")
+        except Exception as e:
+            print(f"Error: {e}")
 
     def update_data(self, moisture: int, moisture_percent: int, temperature: float) -> None:
         self.moisture = moisture
