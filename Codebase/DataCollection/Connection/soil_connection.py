@@ -14,7 +14,8 @@ class SoilConnection:
         print("Soil Serial connection established.")
 
         # self.pattern = r"Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
-        self.pattern = r"Set(\d+): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
+        self.pattern = r"Set(\d+): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature:\s*([\d.]+)\s*°C"
+
 
         self.set_list = []
 
@@ -32,21 +33,23 @@ class SoilConnection:
             line = self.ser.readline().decode('utf-8').strip()
             # print(f"line: {line}")
             match = re.search(self.pattern, line)
+
+            if match is None:
+                return
             # print("Data matched")
 
             soil_set_num = int(match.group(1)) -1
             soil_set = self.get_set(soil_set_num)
             # print(f"Soil Set Number: {soil_set_num}")
 
-            if match:
-                moisture = int(match.group(2))
-                # print(f"Soil Moisture: {moisture}")
-                moisture_percent = int(match.group(3))
-                # print(f"Soil Moisture Percent: {moisture_percent}")
-                temperature = float(match.group(4))
-                # print(f"Temperature: {temperature}")
-                # print("updating data")
-                soil_set.update_data(moisture, moisture_percent, temperature)
+            moisture = int(match.group(2))
+            # print(f"Soil Moisture: {moisture}")
+            moisture_percent = int(match.group(3))
+            # print(f"Soil Moisture Percent: {moisture_percent}")
+            temperature = float(match.group(4))
+            # print(f"Temperature: {temperature}")
+            # print("updating data")
+            soil_set.update_data(moisture, moisture_percent, temperature)
 
         except KeyboardInterrupt:
             print("Stopping script...")
