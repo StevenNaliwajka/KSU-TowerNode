@@ -57,6 +57,12 @@ class SoilConnection:
             soil_set = self.append_set(set_num)
             return soil_set
 
+    def display(self):
+        print("Displaying Soil Moisture Data...")
+        for soil_set in self.set_list:
+            soil_set.display()
+
+
     def append_set(self, set_num) -> SoilSet:
         while len(self.set_list) <= set_num:
             self.set_list.append(None)
