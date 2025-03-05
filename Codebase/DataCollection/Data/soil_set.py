@@ -30,22 +30,37 @@ class SoilSet:
     def build_csv_header(self) -> None:
         # T1 Header
         data = {
-            'Date', 'Depth', 'Set Number'
-        }
-        csv_append(self.csv_path, data)
-        data = {
-            get_date_time_formated(), self.depth, self.soil_set
+            'Date': '',
+            'Depth': '',
+            'Set Number': ''
         }
         csv_append(self.csv_path, data)
 
+        #  metadata
+        data = {
+            'Date': get_date_time_formated(),
+            'Depth': self.depth,
+            'Set Number': self.soil_set
+        }
+        csv_append(self.csv_path, data)
+
+        # blak row
+        csv_append(self.csv_path, {}, separator=True)
+
         # T2 Header
         data = {
-            'Timestamp', 'Soil Moisture Value', 'Soil Moisture (%)', 'Soil Temperature (°C)'
+            'Timestamp': "",
+            'Soil Moisture Value': "",
+            'Soil Moisture (%)': "",
+            'Soil Temperature (°C)': "",
         }
         csv_append(self.csv_path, data)
 
     def log_to_csv(self) -> None:
         data = {
-            get_date_time_formated(), self.moisture, self.moisture_percent, self.temperature
+            'Timestamp': get_date_time_formated(),
+            'Soil Moisture Value': self.moisture,
+            'Soil Moisture (%)': self.moisture_percent,
+            'Soil Temperature (°C)': self.temperature,
         }
         csv_append(self.csv_path, data)
