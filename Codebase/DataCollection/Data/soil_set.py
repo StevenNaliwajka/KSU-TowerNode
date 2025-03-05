@@ -64,4 +64,4 @@ class SoilSet:
             'Soil Temperature (°C)': self.temperature,
         }
         csv_append(self.csv_path, data)
-        print(f"See: {self.csv_path}")
+        # print(f"See: {self.csv_path}")
