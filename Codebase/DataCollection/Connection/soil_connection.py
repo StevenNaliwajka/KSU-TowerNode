@@ -91,4 +91,4 @@ class SoilConnection:
     def data_to_csv(self):
         print("Logging Soil Moisture Data...")
         for soil_set in self.set_list:
-            soil_set.log_soil_data()
+            soil_set.log_to_csv()
