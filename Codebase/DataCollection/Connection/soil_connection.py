@@ -75,15 +75,17 @@ class SoilConnection:
         for soil_set in self.set_list:
             soil_set.display()
 
-
     def append_set(self, set_num) -> SoilSet:
         print("Soil set not found, creating new one...")
+
+        # Ensure list is long enough before setting a new value
         while len(self.set_list) <= set_num:
             self.set_list.append(None)
 
-        csv_path = create_csv(self.csv_type, set_num+1)
+        csv_path = create_csv(self.csv_type, set_num + 1)
         self.set_list[set_num] = SoilSet(set_num, csv_path)
         return self.set_list[set_num]
+
 
     def close_serial(self) -> None:
         # Closes serial on end.
