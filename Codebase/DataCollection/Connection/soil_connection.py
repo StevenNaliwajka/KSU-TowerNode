@@ -3,55 +3,68 @@ import re
 import serial
 import atexit
 
+
+from Codebase.DataCollection.Data.soil_set import SoilSet
+
+
 class SoilConnection:
     def __init__(self, port:str="/dev/ttyUSB2", baudrate:int=9600) -> None:
         self.ser = serial.Serial(port, baudrate, timeout=1)
         print("Serial connection established.")
 
-        self.pattern = r"Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
+        # self.pattern = r"Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
+        self.pattern = r"Set(\d+): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
 
-
-        self.moisture = None
-        self.moisture_percent = None
-        self.temperature = None
+        self.set_list = []
 
         print("Attempting to read from serial...")
         self.log_soil_data()
-        # Register cleanup to close the serial connection on exit
+        # cleanup on exit
         print("Registering exit function")
         atexit.register(self.close_serial)
 
     def log_soil_data(self) -> None:
         try:
             print("Reading Soil Moisture Data...")
-            line = self.ser.readline().decode('utf-8').strip()  # Read and decode data
+            line = self.ser.readline().decode('utf-8').strip()
             print("Matching pattern")
-            match = re.search(self.pattern, line)  # Match the pattern
+            match = re.search(self.pattern, line)
             print("Data matched")
+
+            soil_set_num = int(match.group(1))
+            soil_set = self.get_set(soil_set_num)
+
             if match:
-                moisture = int(match.group(1))
-                moisture_percent = int(match.group(2))
-                temperature = float(match.group(3))
+                moisture = int(match.group(2))
+                moisture_percent = int(match.group(3))
+                temperature = float(match.group(4))
                 print("updating data")
-                self.update_data(moisture, moisture_percent, temperature)
+                soil_set.update_data(moisture, moisture_percent, temperature)
 
         except KeyboardInterrupt:
             print("Stopping script...")
         except Exception as e:
             print(f"Error: {e}")
 
-    def update_data(self, moisture: int, moisture_percent: int, temperature: float) -> None:
-        self.moisture = moisture
-        self.moisture_percent = moisture_percent
-        self.temperature = temperature
+    def get_set(self, set_num) -> SoilSet:
+        try:
+            soil_set = self.set_list[set_num]
+            if soil_set is None:
+                soil_set = self.append_set(set_num)
+                return soil_set
+            return soil_set
+        except IndexError:
+            soil_set = self.append_set(set_num)
+            return soil_set
 
-    def display(self) -> None:
-        print(f"Soil Moisture: {self.moisture}")
-        print(f"Soil Moisture (%): {self.moisture_percent}%")
-        print(f"Soil Temperature: {self.temperature}°C")
+    def append_set(self, set_num) -> SoilSet:
+        while len(self.set_list) <= set_num:
+            self.set_list.append(None)
+        self.set_list[set_num] = SoilSet(set_num)
+        return self.set_list[set_num]
 
     def close_serial(self) -> None:
-        """Closes the serial connection properly."""
+        # Closes serial on end.
         if self.ser and self.ser.is_open:
             print("Closing serial connection...")
             self.ser.close()
