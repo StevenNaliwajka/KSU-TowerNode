@@ -24,13 +24,16 @@ class SoilConnection:
     def log_soil_data(self) -> None:
         while True:
             try:
+                print("Reading Soil Moisture Data...")
                 line = self.ser.readline().decode('utf-8').strip()  # Read and decode data
+                print("Matching pattern")
                 match = re.search(self.pattern, line)  # Match the pattern
-
+                print("Data matched")
                 if match:
                     moisture = int(match.group(1))
                     moisture_percent = int(match.group(2))
                     temperature = float(match.group(3))
+                    print("updating data")
                     self.update_data(moisture, moisture_percent, temperature)
 
             except KeyboardInterrupt:
