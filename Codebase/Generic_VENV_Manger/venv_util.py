@@ -93,6 +93,10 @@ class VENVUtil:
         # **Modify PYTHONPATH dynamically**
         os.environ["PYTHONPATH"] = os.pathsep.join(sys.path)
 
+        venv_site_packages = "/home/tvws/Documents/KSU-TowerNode/venv/lib/python3.11/site-packages"
+        if venv_site_packages not in sys.path:
+            sys.path.insert(0, venv_site_packages)
+
         for p in sys.path:
             print(p)
 
