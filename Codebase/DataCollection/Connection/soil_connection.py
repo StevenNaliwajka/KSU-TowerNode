@@ -56,6 +56,7 @@ class SoilConnection:
         except Exception as e:
             print(f"Error: {e}")
 
+    ## tbd
     def get_set(self, set_num) -> SoilSet:
         try:
             soil_set = self.set_list[set_num]
@@ -90,5 +91,6 @@ class SoilConnection:
 
     def data_to_csv(self):
         print("Logging Soil Moisture Data...")
-        for soil_set in self.set_list:
+        # remove none values
+        for soil_set in filter(None, self.set_list):
             soil_set.log_to_csv()
