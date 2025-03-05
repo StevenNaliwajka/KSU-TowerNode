@@ -93,6 +93,9 @@ class VENVUtil:
         # **Modify PYTHONPATH dynamically**
         os.environ["PYTHONPATH"] = os.pathsep.join(sys.path)
 
+        for p in sys.path:
+            print(p)
+
         # **Run the script**
         try:
             subprocess.run([venv_python, python_file_to_run], check=True)
