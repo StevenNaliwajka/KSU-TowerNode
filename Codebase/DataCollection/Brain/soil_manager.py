@@ -19,8 +19,8 @@ def soil_manager():
         print("Logging soil data...")
         soil_connection.log_soil_data()
 
-        print("Displaying data...")
-        soil_connection.display()
+        print("Logging to CSV...")
+        soil_connection.data_to_csv()
 
         time.sleep(1)
 
