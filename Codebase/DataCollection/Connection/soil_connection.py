@@ -31,7 +31,7 @@ class SoilConnection:
             match = re.search(self.pattern, line)
             print("Data matched")
 
-            soil_set_num = int(match.group(1))
+            soil_set_num = int(match.group(1)) -1
             soil_set = self.get_set(soil_set_num)
 
             if match:
@@ -50,6 +50,7 @@ class SoilConnection:
         try:
             soil_set = self.set_list[set_num]
             if soil_set is None:
+                print("Setting not found, creating new one...")
                 soil_set = self.append_set(set_num)
                 return soil_set
             return soil_set
