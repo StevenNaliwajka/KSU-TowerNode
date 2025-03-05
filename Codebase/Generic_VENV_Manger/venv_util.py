@@ -67,40 +67,17 @@ class VENVUtil:
 
     @staticmethod
     def run_with_venv(venv_destination_folder: str, python_file_to_run: str) -> None:
-        """Activate venv, add package paths manually, and run the script."""
+        """Activate venv and run the script."""
         load_env_vars()
 
         venv_destination_folder = ensure_venv_path(venv_destination_folder)
+
         venv_python = get_python_executable(venv_destination_folder)
 
         if not os.path.exists(venv_python):
             print("Error: Virtual environment not found. Ensure venv is set up correctly.")
             return
 
-        # **Manually add sys paths for installed packages**
-        site_packages_path = os.path.join(venv_destination_folder, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages")
-        if site_packages_path not in sys.path:
-            sys.path.insert(0, site_packages_path)  # Insert at beginning
-
-        # **Dynamically add paths for GitHub packages (if installed in a non-standard location)**
-        github_packages = parse_packages().get("github_packages", [])
-        for package in github_packages:
-            package_name = package.split("/")[-1].split(".git")[0]  # Extract repo name
-            package_path = os.path.join(site_packages_path, package_name)
-            if os.path.exists(package_path) and package_path not in sys.path:
-                sys.path.insert(0, package_path)
-
-        # **Modify PYTHONPATH dynamically**
-        os.environ["PYTHONPATH"] = os.pathsep.join(sys.path)
-
-        venv_site_packages = "/home/tvws/Documents/KSU-TowerNode/venv/lib/python3.11/site-packages"
-        if venv_site_packages not in sys.path:
-            sys.path.insert(0, venv_site_packages)
-
-        for p in sys.path:
-            print(p)
-
-        # **Run the script**
         try:
             subprocess.run([venv_python, python_file_to_run], check=True)
         except subprocess.CalledProcessError as e:
