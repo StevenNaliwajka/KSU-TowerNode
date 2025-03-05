@@ -5,6 +5,7 @@ import atexit
 
 
 from Codebase.DataCollection.Data.soil_set import SoilSet
+from Codebase.FileIO.CSV.create_csv import create_csv
 
 
 class SoilConnection:
@@ -16,6 +17,8 @@ class SoilConnection:
         self.pattern = r"Set(\d+): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature: ([\d.]+) °C"
 
         self.set_list = []
+
+        self.csv_type = "SoilData"
 
         print("Attempting to read from serial...")
         self.log_soil_data()
@@ -67,7 +70,9 @@ class SoilConnection:
     def append_set(self, set_num) -> SoilSet:
         while len(self.set_list) <= set_num:
             self.set_list.append(None)
-        self.set_list[set_num] = SoilSet(set_num)
+
+        csv_path = create_csv(self.csv_type, set_num+1)
+        self.set_list[set_num] = SoilSet(set_num, csv_path)
         return self.set_list[set_num]
 
     def close_serial(self) -> None:
@@ -77,4 +82,6 @@ class SoilConnection:
             self.ser.close()
 
     def data_to_csv(self):
-        pass
+        print("Logging Soil Moisture Data...")
+        for soil_set in self.set_list:
+            soil_set.log_soil_data()

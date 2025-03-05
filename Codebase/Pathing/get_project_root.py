@@ -1,18 +1,14 @@
 import os
 from os import path
+from pathlib import Path
 
 
 def get_project_root():
     # Global message Pathing. Changes here reflect everywhere.
 
-    this_directory = path.abspath(path.dirname(__file__))
-    parent_directory = os.path.dirname(this_directory)
+    current_path = Path(__file__).resolve()
+    parent_path = current_path.parents[2]
+    return parent_path
 
-    # Qty of directories to rise
-    num_directories = 3
-
-    current_directory = os.path.abspath(__file__)
-    up_levels = ['..'] * num_directories
-    parent_directory = os.path.abspath(os.path.join(current_directory, *up_levels))
-
-    return parent_directory
+if __name__ == '__main__':
+    print(get_project_root())
