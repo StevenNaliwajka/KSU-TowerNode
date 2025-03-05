@@ -172,3 +172,6 @@ cython_debug/
 !Codebase/Generic_VENV_Manager/packages.json
 venv
 .idea
+
+Config/
+CSVOutput/
