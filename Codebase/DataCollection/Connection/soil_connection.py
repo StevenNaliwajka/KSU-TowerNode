@@ -76,7 +76,7 @@ class SoilConnection:
             soil_set.display()
 
     def append_set(self, set_num) -> SoilSet:
-        print("Soil set not found, creating new one...")
+        print(f"Soil set {set_num} not found, creating new one...")
 
         # Ensure list is long enough before setting a new value
         while len(self.set_list) <= set_num:
