@@ -1,3 +1,11 @@
+# Dynamically find the project root, required to allow for correct imports.
+import sys
+from pathlib import Path
+
+folder_ct = 3  ### NOT always 2. Change to the qty of folders up before root.
+PROJECT_ROOT = Path(__file__).resolve().parents[folder_ct]
+sys.path.append(str(PROJECT_ROOT))
+
 from generic_file_io.core.csv_manager.support.csv_append import csv_append
 
 from Codebase.SupportMethods.get_date_time_formated import get_date_time_formated
