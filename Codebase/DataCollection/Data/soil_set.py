@@ -1,5 +1,7 @@
 from generic_file_io.csv_manager.csv_append import csv_append
-from Codebase.SupportMethods.get_date_time_formated import get_date_time_formated
+
+from Codebase.SupportMethods.get_current_date import get_current_date
+from Codebase.SupportMethods.get_current_time import get_current_time
 
 class SoilSet:
     def __init__(self, soil_set_num: int, csv_path: str) -> None:
@@ -35,7 +37,7 @@ class SoilSet:
         csv_append(self.csv_path, data)
 
         metadata = {
-            'Date': get_date_time_formated(),
+            'Date': get_current_date(),
             'Depth': self.depth,
             'Set Number': self.soil_set
         }
@@ -46,7 +48,8 @@ class SoilSet:
 
         # Column headers for soil data
         column_headers = {
-            'Timestamp': "Timestamp",
+            'Date (Mon/Day/Year)': "Date (Mon/Day/Year)",
+            'Time (Hour:Min:Sec)': "Time (Hour:Min:Sec)",
             'Soil Moisture Value': "Soil Moisture Value",
             'Soil Moisture (%)': "Soil Moisture (%)",
             'Soil Temperature (°C)': "Soil Temperature (°C)",
@@ -56,7 +59,8 @@ class SoilSet:
     def log_to_csv(self) -> None:
         # Logs to csv
         data = {
-            'Timestamp': get_date_time_formated(),
+            'Date (Mon/Day/Year)': get_current_date(),
+            'Time (Hour:Min:Sec)': get_current_time(),
             'Soil Moisture Value': self.moisture,
             'Soil Moisture (%)': self.moisture_percent,
             'Soil Temperature (°C)': self.temperature,

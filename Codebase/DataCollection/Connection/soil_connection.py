@@ -17,7 +17,7 @@ class SoilConnection:
             self.ser = None
             return
 
-        self.pattern = r"Set(\d+): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature:\s*([\d.]+)\s*°C"
+        self.pattern = r"Set(\d{1,3}): Soil Moisture: (\d+) \| Soil Moisture \(%\): (\d+)% \| Soil Temperature:\s*([\d.]+)\s*°C"
         self.set_list = []
         self.csv_type = "SoilData"
         self.corrupt_count = 0
@@ -35,15 +35,19 @@ class SoilConnection:
             return
 
         try:
-            raw_data = self.ser.readline()
+            # Read serial data correctly
+
+            # flush buffer
+            self.ser.flush()
+            # read untill end line
+            raw_data = self.ser.read_until(b'\n')
+
             try:
-                line = raw_data.decode('utf-8').strip()
+                line = raw_data.decode('utf-8', errors='ignore').strip()
             except UnicodeDecodeError:
                 self.corrupt_count += 1
                 print(f"Warning: Corrupt data received: {raw_data}")
-
-                # Restart serial connection if too many errors
-                if self.corrupt_count > 5:
+                if self.corrupt_count > 3:
                     self.restart_serial()
                 return
 
@@ -57,21 +61,31 @@ class SoilConnection:
                 print(f"Skipping unrecognized format: {line}")
                 return
 
-            # Extract data safely
-            soil_set_num = int(match.group(1)) - 1
+            # numer extraction
+            try:
+                soil_set_num = int(match.group(1))
+                # Arbitrary upper bound to avoid runaway value
+                if soil_set_num > 1000:
+                    print(f"Invalid set number detected ({soil_set_num}), ignoring...")
+                    return
+            except ValueError:
+                print(f"Set number parsing error: {match.group(1)}")
+                return
+
+            # Ensure valid indices
             soil_set = self.get_set(soil_set_num)
 
             moisture = int(match.group(2))
             moisture_percent = int(match.group(3))
             temperature = float(match.group(4))
 
-            # Validate data
             if not self.validate_data(moisture, moisture_percent, temperature):
                 print(f"Skipping invalid data: {line}")
                 return
 
             soil_set.update_data(moisture, moisture_percent, temperature)
-            self.corrupt_count = 0  # Reset error counter on success
+            # start over on succuess
+            self.corrupt_count = 0
 
         except KeyboardInterrupt:
             print("Stopping script...")
@@ -104,14 +118,17 @@ class SoilConnection:
             return self.append_set(set_num)
 
     def append_set(self, set_num) -> SoilSet:
-        # creates a new set
+        # Prevent memory overflow
+        if set_num > 1000:
+            print(f"Error: Attempted to create set {set_num}, which is too large. Ignoring request.")
+            return None
+
         print(f"Soil set {set_num} not found, creating new one...")
 
-        # extend list
         while len(self.set_list) <= set_num:
             self.set_list.append(None)
 
-        csv_path = create_csv(self.csv_type, set_num + 1)
+        csv_path = create_csv(self.csv_type, set_num)
         self.set_list[set_num] = SoilSet(set_num, csv_path)
         return self.set_list[set_num]
 
@@ -128,7 +145,8 @@ class SoilConnection:
         try:
             self.ser.open()
             print("Serial connection restarted.")
-            self.corrupt_count = 0  # Reset error counter
+            # Reset error counter
+            self.corrupt_count = 0
         except serial.SerialException as e:
             print(f"Error: Unable to reopen serial connection: {e}")
 
