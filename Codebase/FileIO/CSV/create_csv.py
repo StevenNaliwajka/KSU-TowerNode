@@ -4,7 +4,7 @@ from generic_file_io.csv_manager.csv_create import csv_create
 
 def create_csv(collection_type, number) -> str:
     current_day_time = get_date_time_formated()
-    filename = f"{collection_type}-{number}-{current_day_time}.csv"
+    filename = f"{collection_type}_instance{number}_{current_day_time}.csv"
 
     # build path
     file_path = get_csv_out_folder() / filename
