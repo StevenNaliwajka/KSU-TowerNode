@@ -44,7 +44,7 @@ class SoilSet:
         csv_append(self.csv_path, metadata)
 
         # Add blank row
-        csv_append(self.csv_path, {}, separator=True)
+        # csv_append(self.csv_path, {}, separator=True)
 
         # Column headers for soil data
         column_headers = {
