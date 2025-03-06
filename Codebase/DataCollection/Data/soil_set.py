@@ -48,8 +48,8 @@ class SoilSet:
 
         # Column headers for soil data
         column_headers = {
-            'Date (Mon/Day/Year)': "Date (Mon/Day/Year)",
-            'Time (Hour:Min:Sec)': "Time (Hour:Min:Sec)",
+            'Date (Year-Mon-Day)': "Date (Year-Mon-Day)",
+            'Time (Hour-Min-Sec)': "Time (Hour-Min-Sec)",
             'Soil Moisture Value': "Soil Moisture Value",
             'Soil Moisture (%)': "Soil Moisture (%)",
             'Soil Temperature (°C)': "Soil Temperature (°C)",
@@ -59,8 +59,8 @@ class SoilSet:
     def log_to_csv(self) -> None:
         # Logs to csv
         data = {
-            'Date (Mon/Day/Year)': get_current_date(),
-            'Time (Hour:Min:Sec)': get_current_time(),
+            'Date (Year-Mon-Day)': get_current_date(),
+            'Time (Hour-Min-Sec)': get_current_time(),
             'Soil Moisture Value': self.moisture,
             'Soil Moisture (%)': self.moisture_percent,
             'Soil Temperature (°C)': self.temperature,
