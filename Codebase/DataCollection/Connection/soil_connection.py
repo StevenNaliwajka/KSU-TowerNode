@@ -1,5 +1,7 @@
 import re
+import time
 import traceback
+
 import serial
 import atexit
 
@@ -41,8 +43,19 @@ class SoilConnection:
                 return False  # Return failure so soil_manager can restart serial
 
         try:
-            print("[DEBUG] Flushing serial buffer...")
+            print("[DEBUG] Attempting to flush serial buffer...")
+
+            # ADD TIMEOUT TO FLUSH
+            flush_start_time = time.time()
             self.ser.flush()
+
+            # If flush takes too long, assume serial connection is bad
+            if time.time() - flush_start_time > 2:  # 2 seconds timeout
+                print("[DEBUG] Serial flush took too long! Restarting serial connection...")
+                self.restart_serial()
+                return False  # Avoid getting stuck
+
+            print("[DEBUG] Flushed serial buffer successfully.")
 
             print("[DEBUG] Waiting for serial data...")
             raw_data = self.ser.read_until(b'\n')
