@@ -36,6 +36,7 @@ class SoilConnection:
         if not self.ser or not self.ser.is_open:
             print("[DEBUG] Serial connection lost. Attempting to reopen...")
             try:
+                self.ser.close()  # Ensure it's fully closed before reopening
                 self.ser.open()
                 print("[DEBUG] Serial connection restored.")
             except serial.SerialException as e:
@@ -43,22 +44,15 @@ class SoilConnection:
                 return False  # Return failure so soil_manager can restart serial
 
         try:
-            print("[DEBUG] Attempting to flush serial buffer...")
-
-            # ADD TIMEOUT TO FLUSH
-            flush_start_time = time.time()
-            self.ser.flush()
-
-            # If flush takes too long, assume serial connection is bad
-            if time.time() - flush_start_time > 2:  # 2 seconds timeout
-                print("[DEBUG] Serial flush took too long! Restarting serial connection...")
-                self.restart_serial()
+            # **NEW: Check if the device is still responsive before reading**
+            print("[DEBUG] Checking if serial device is still responsive...")
+            if self.ser.in_waiting == 0:
+                print("[DEBUG] No data available in serial buffer. Skipping read...")
+                time.sleep(1)  # Give time before the next attempt
                 return False  # Avoid getting stuck
 
-            print("[DEBUG] Flushed serial buffer successfully.")
-
-            print("[DEBUG] Waiting for serial data...")
-            raw_data = self.ser.read_until(b'\n')
+            print("[DEBUG] Serial device is active. Reading data...")
+            raw_data = self.ser.read_until(b'\n')  # Read from serial port
             print(f"[DEBUG] Raw data received: {raw_data}")
 
             try:
