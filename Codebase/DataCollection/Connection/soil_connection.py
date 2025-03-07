@@ -29,40 +29,49 @@ class SoilConnection:
         atexit.register(self.close_serial)
 
     def log_soil_data(self) -> bool:
+        print("[DEBUG] log_soil_data() started")
+
         if not self.ser or not self.ser.is_open:
-            print("Serial connection lost. Attempting to reopen...")
+            print("[DEBUG] Serial connection lost. Attempting to reopen...")
             try:
                 self.ser.open()
-                print("Serial connection restored.")
+                print("[DEBUG] Serial connection restored.")
             except serial.SerialException as e:
                 print(f"Error: Unable to reopen serial connection: {e}")
                 return False  # Return failure so soil_manager can restart serial
 
         try:
+            print("[DEBUG] Flushing serial buffer...")
             self.ser.flush()
+
+            print("[DEBUG] Waiting for serial data...")
             raw_data = self.ser.read_until(b'\n')
+            print(f"[DEBUG] Raw data received: {raw_data}")
 
             try:
                 line = raw_data.decode('utf-8', errors='ignore').strip()
+                print(f"[DEBUG] Decoded line: {line}")
             except UnicodeDecodeError:
                 self.corrupt_count += 1
                 print(f"Warning: Corrupt data received: {raw_data}")
                 if self.corrupt_count > 3:
+                    print("[DEBUG] Corrupt data threshold exceeded, restarting serial...")
                     self.restart_serial()
                 return False  # Indicate failure
 
             if not line.startswith("Set"):
-                print(f"Skipping malformed data: {line}")
+                print(f"[DEBUG] Skipping malformed data: {line}")
                 return False  # Indicate failure
 
             match = re.search(self.pattern, line)
             if not match:
-                print(f"Skipping unrecognized format: {line}")
+                print(f"[DEBUG] Skipping unrecognized format: {line}")
                 return False  # Indicate failure
 
+            print("[DEBUG] Extracting data from regex match...")
             soil_set_num = int(match.group(1))
             if soil_set_num > 1000:
-                print(f"Invalid set number detected ({soil_set_num}), ignoring...")
+                print(f"[DEBUG] Invalid set number detected ({soil_set_num}), ignoring...")
                 return False  # Indicate failure
 
             soil_set = self.get_set(soil_set_num)
@@ -71,22 +80,27 @@ class SoilConnection:
             moisture_percent = int(match.group(3))
             temperature = float(match.group(4))
 
+            print(
+                f"[DEBUG] Parsed values - Set: {soil_set_num}, Moisture: {moisture}, Moisture %: {moisture_percent}, Temperature: {temperature}")
+
             if not self.validate_data(moisture, moisture_percent, temperature):
-                print(f"Skipping invalid data: {line}")
+                print(f"[DEBUG] Skipping invalid data: {line}")
                 return False  # Indicate failure
 
+            print("[DEBUG] Updating soil set...")
             soil_set.update_data(moisture, moisture_percent, temperature)
             self.corrupt_count = 0  # Reset error counter
+            print("[DEBUG] log_soil_data() completed successfully")
             return True  # Indicate success
 
         except KeyboardInterrupt:
-            print("Stopping script...")
+            print("[DEBUG] Stopping script...")
         except serial.SerialException as e:
-            print(f"Serial error: {e}")
+            print(f"[DEBUG] Serial error: {e}")
             self.restart_serial()
             return False
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"[DEBUG] Unexpected error in log_soil_data: {e}")
             traceback.print_exc()
             return False
 
