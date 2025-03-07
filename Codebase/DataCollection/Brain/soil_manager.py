@@ -38,9 +38,14 @@ def soil_manager():
         except KeyboardInterrupt:
             print("Stopping script...")
             break
+        except serial.SerialException as e:
+            print(f"Serial connection error: {e}")
+            soil_connection.restart_serial()  # Restart the connection if serial fails
+            failure_count += 1
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            failure_count += 1  # Count unknown errors
+            print(f"Unexpected error in soil_manager: {e}")
+            traceback.print_exc()  # Print the full error traceback
+            failure_count += 1
 
         time.sleep(1)  # Pause between reads
 

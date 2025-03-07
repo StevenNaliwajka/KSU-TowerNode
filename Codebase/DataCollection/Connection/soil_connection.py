@@ -30,8 +30,13 @@ class SoilConnection:
 
     def log_soil_data(self) -> bool:
         if not self.ser or not self.ser.is_open:
-            print("Serial connection is not open.")
-            return False  # Indicate failure
+            print("Serial connection lost. Attempting to reopen...")
+            try:
+                self.ser.open()
+                print("Serial connection restored.")
+            except serial.SerialException as e:
+                print(f"Error: Unable to reopen serial connection: {e}")
+                return False  # Return failure so soil_manager can restart serial
 
         try:
             self.ser.flush()
@@ -76,10 +81,14 @@ class SoilConnection:
 
         except KeyboardInterrupt:
             print("Stopping script...")
+        except serial.SerialException as e:
+            print(f"Serial error: {e}")
+            self.restart_serial()
+            return False
         except Exception as e:
             print(f"Error: {e}")
             traceback.print_exc()
-            return False  # Indicate failure
+            return False
 
     def validate_data(self, moisture, moisture_percent, temperature) -> bool:
         # validates soil data
@@ -95,12 +104,14 @@ class SoilConnection:
         return True
 
     def get_set(self, set_num) -> SoilSet:
-        # returns the correct set.
+        if set_num > 1000:
+            print(f"Error: Too many soil sets. Ignoring request.")
+            return None
+
         try:
             soil_set = self.set_list[set_num]
             if soil_set is None:
                 soil_set = self.append_set(set_num)
-                return soil_set
             return soil_set
         except IndexError:
             return self.append_set(set_num)
@@ -139,7 +150,8 @@ class SoilConnection:
             print(f"Error: Unable to reopen serial connection: {e}")
 
     def data_to_csv(self):
-        # dumps data to csv
-        # print("Logging Soil Moisture Data...")
         for soil_set in filter(None, self.set_list):
-            soil_set.log_to_csv()
+            try:
+                soil_set.log_to_csv()
+            except Exception as e:
+                print(f"Error writing to CSV: {e}")
