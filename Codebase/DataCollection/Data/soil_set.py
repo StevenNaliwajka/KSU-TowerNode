@@ -70,6 +70,7 @@ class SoilSet:
                 'Soil Temperature (°C)': self.temperature,
             }
             csv_append(self.csv_path, data)
+            print("Logging SoilData to CSV Complete")
 
         except Exception as e:
             print(f"Error logging SoilData to CSV: {e}")
