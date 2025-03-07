@@ -57,6 +57,8 @@ class SoilSet:
         csv_append(self.csv_path, column_headers)
 
     def log_to_csv(self) -> None:
+        time = get_current_time()
+        print(f"({time}) Logging SoilData to CSV : {self.csv_path}")
         # Logs to csv
         data = {
             'Date (Year-Mon-Day)': get_current_date(),

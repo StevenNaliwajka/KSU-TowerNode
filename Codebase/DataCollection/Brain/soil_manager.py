@@ -16,10 +16,10 @@ def soil_manager():
     print("Soil connection established.")
 
     while True:
-        print("Logging soil data...")
+        # print("Logging soil data...")
         soil_connection.log_soil_data()
 
-        print("Logging to CSV...")
+        # print("Logging to CSV...")
         soil_connection.data_to_csv()
 
         time.sleep(1)
