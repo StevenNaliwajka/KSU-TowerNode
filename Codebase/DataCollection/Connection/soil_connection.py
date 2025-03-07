@@ -28,18 +28,13 @@ class SoilConnection:
         # Cleanup on exit
         atexit.register(self.close_serial)
 
-    def log_soil_data(self) -> None:
-        # Reads and logs soil data
+    def log_soil_data(self) -> bool:
         if not self.ser or not self.ser.is_open:
             print("Serial connection is not open.")
-            return
+            return False  # Indicate failure
 
         try:
-            # Read serial data correctly
-
-            # flush buffer
             self.ser.flush()
-            # read untill end line
             raw_data = self.ser.read_until(b'\n')
 
             try:
@@ -49,30 +44,22 @@ class SoilConnection:
                 print(f"Warning: Corrupt data received: {raw_data}")
                 if self.corrupt_count > 3:
                     self.restart_serial()
-                return
+                return False  # Indicate failure
 
-            # Ensure valid data
             if not line.startswith("Set"):
                 print(f"Skipping malformed data: {line}")
-                return
+                return False  # Indicate failure
 
             match = re.search(self.pattern, line)
             if not match:
                 print(f"Skipping unrecognized format: {line}")
-                return
+                return False  # Indicate failure
 
-            # numer extraction
-            try:
-                soil_set_num = int(match.group(1))
-                # Arbitrary upper bound to avoid runaway value
-                if soil_set_num > 1000:
-                    print(f"Invalid set number detected ({soil_set_num}), ignoring...")
-                    return
-            except ValueError:
-                print(f"Set number parsing error: {match.group(1)}")
-                return
+            soil_set_num = int(match.group(1))
+            if soil_set_num > 1000:
+                print(f"Invalid set number detected ({soil_set_num}), ignoring...")
+                return False  # Indicate failure
 
-            # Ensure valid indices
             soil_set = self.get_set(soil_set_num)
 
             moisture = int(match.group(2))
@@ -81,17 +68,18 @@ class SoilConnection:
 
             if not self.validate_data(moisture, moisture_percent, temperature):
                 print(f"Skipping invalid data: {line}")
-                return
+                return False  # Indicate failure
 
             soil_set.update_data(moisture, moisture_percent, temperature)
-            # start over on succuess
-            self.corrupt_count = 0
+            self.corrupt_count = 0  # Reset error counter
+            return True  # Indicate success
 
         except KeyboardInterrupt:
             print("Stopping script...")
         except Exception as e:
             print(f"Error: {e}")
             traceback.print_exc()
+            return False  # Indicate failure
 
     def validate_data(self, moisture, moisture_percent, temperature) -> bool:
         # validates soil data

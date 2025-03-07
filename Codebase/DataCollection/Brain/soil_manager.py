@@ -15,14 +15,34 @@ def soil_manager():
     soil_connection = SoilConnection()
     print("Soil connection established.")
 
+    failure_count = 0  # Track consecutive failures
+
     while True:
-        # print("Logging soil data...")
-        soil_connection.log_soil_data()
+        try:
+            result = soil_connection.log_soil_data()  # Call log function
 
-        # print("Logging to CSV...")
-        soil_connection.data_to_csv()
+            if not result:
+                failure_count += 1  # Increase failure count on bad data
+            else:
+                failure_count = 0  # Reset on success
 
-        time.sleep(1)
+            # Restart connection if too many failures
+            if failure_count > 5:
+                print("Too many failed readings. Restarting serial connection...")
+                soil_connection.restart_serial()
+                failure_count = 0  # Reset failure count
+
+            # Dump valid data to CSV
+            soil_connection.data_to_csv()
+
+        except KeyboardInterrupt:
+            print("Stopping script...")
+            break
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            failure_count += 1  # Count unknown errors
+
+        time.sleep(1)  # Pause between reads
 
 
 # Run the manager function when executing the script
