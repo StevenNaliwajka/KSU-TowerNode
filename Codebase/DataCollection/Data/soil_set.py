@@ -59,12 +59,20 @@ class SoilSet:
     def log_to_csv(self) -> None:
         time = get_current_time()
         print(f"({time}) Logging SoilData to CSV : {self.csv_path}")
-        # Logs to csv
-        data = {
-            'Date (Year-Mon-Day)': get_current_date(),
-            'Time (Hour-Min-Sec)': get_current_time(),
-            'Soil Moisture Value': self.moisture,
-            'Soil Moisture (%)': self.moisture_percent,
-            'Soil Temperature (°C)': self.temperature,
-        }
-        csv_append(self.csv_path, data)
+
+        try:
+            # Logs to csv
+            data = {
+                'Date (Year-Mon-Day)': get_current_date(),
+                'Time (Hour-Min-Sec)': get_current_time(),
+                'Soil Moisture Value': self.moisture,
+                'Soil Moisture (%)': self.moisture_percent,
+                'Soil Temperature (°C)': self.temperature,
+            }
+            csv_append(self.csv_path, data)
+
+        except Exception as e:
+            print(f"Error logging SoilData to CSV: {e}")
+            import traceback
+            traceback.print_exc()
+
