@@ -50,6 +50,7 @@ class SoilConnection:
             last_received_time = time.time()
 
             while True:
+                print (f"[Debug] SerInWaiting:    {self.ser.in_waiting}")
                 if self.ser.in_waiting > 0:
                     raw_data = self.ser.readline()
                     try:
@@ -74,6 +75,7 @@ class SoilConnection:
                     break
 
                 time.sleep(0.1)
+
 
             if not buffer:
                 print("[DEBUG] No valid data received. Exiting.")
