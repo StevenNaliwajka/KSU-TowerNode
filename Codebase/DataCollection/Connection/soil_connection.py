@@ -44,14 +44,14 @@ class SoilConnection:
                 return False
 
         try:
-            #print("[DEBUG] Waiting for serial data...")
+            print("[DEBUG] Waiting for serial data...")
 
             buffer = []
             last_received_time = time.time()
 
             data_received_flag = False
             while True:
-                print (f"[Debug] SerInWaiting:    {self.ser.in_waiting}")
+                #print (f"[Debug] SerInWaiting:    {self.ser.in_waiting}")
                 if self.ser.in_waiting > 0:
                     data_received_flag = True
                     raw_data = self.ser.readline()
