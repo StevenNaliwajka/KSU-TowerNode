@@ -10,7 +10,7 @@ from Codebase.FileIO.CSV.create_csv import create_csv
 
 
 class SoilConnection:
-    def __init__(self, port: str = "/dev/ttyUSB2", baudrate: int = 9600) -> None:
+    def __init__(self, port: str = "/dev/ttyUSB1", baudrate: int = 9600) -> None:
         try:
             self.ser = serial.Serial(port, baudrate, timeout=2)
             print("Soil Serial connection established.")
