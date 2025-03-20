@@ -12,7 +12,7 @@ from Codebase.FileIO.CSV.create_csv import create_csv
 class SoilConnection:
     def __init__(self, port: str = "/dev/ttyUSB2", baudrate: int = 9600) -> None:
         try:
-            self.ser = serial.Serial(port, baudrate, timeout=2)  # Increased timeout
+            self.ser = serial.Serial(port, baudrate, timeout=2)
             print("Soil Serial connection established.")
         except serial.SerialException as e:
             print(f"Error: Could not establish serial connection: {e}")
@@ -36,69 +36,82 @@ class SoilConnection:
         if not self.ser or not self.ser.is_open:
             print("[DEBUG] Serial connection lost. Attempting to reopen...")
             try:
-                self.ser.close()  # Ensure it's fully closed before reopening
+                self.ser.close()
                 self.ser.open()
                 print("[DEBUG] Serial connection restored.")
             except serial.SerialException as e:
                 print(f"Error: Unable to reopen serial connection: {e}")
-                return False  # Return failure so soil_manager can restart serial
+                return False
 
         try:
-            # **NEW: Check if the device is still responsive before reading**
-            print("[DEBUG] Checking if serial device is still responsive...")
-            if self.ser.in_waiting == 0:
-                print("[DEBUG] No data available in serial buffer. Skipping read...")
-                time.sleep(1)  # Give time before the next attempt
-                return False  # Avoid getting stuck
+            print("[DEBUG] Waiting for serial data...")
 
-            print("[DEBUG] Serial device is active. Reading data...")
-            raw_data = self.ser.read_until(b'\n')  # Read from serial port
-            print(f"[DEBUG] Raw data received: {raw_data}")
+            buffer = []
+            last_received_time = time.time()
 
-            try:
-                line = raw_data.decode('utf-8', errors='ignore').strip()
-                print(f"[DEBUG] Decoded line: {line}")
-            except UnicodeDecodeError:
-                self.corrupt_count += 1
-                print(f"Warning: Corrupt data received: {raw_data}")
-                if self.corrupt_count > 3:
-                    print("[DEBUG] Corrupt data threshold exceeded, restarting serial...")
-                    self.restart_serial()
-                return False  # Indicate failure
+            while True:
+                if self.ser.in_waiting > 0:
+                    raw_data = self.ser.readline()
+                    try:
+                        line = raw_data.decode('utf-8', errors='ignore').strip()
+                        print(f"[DEBUG] Received: {line}")
 
-            if not line.startswith("Set"):
-                print(f"[DEBUG] Skipping malformed data: {line}")
-                return False  # Indicate failure
+                        if line.startswith("Set"):
+                            buffer.append(line)
+                            last_received_time = time.time()
 
-            match = re.search(self.pattern, line)
-            if not match:
-                print(f"[DEBUG] Skipping unrecognized format: {line}")
-                return False  # Indicate failure
+                    except UnicodeDecodeError:
+                        self.corrupt_count += 1
+                        print(f"Warning: Corrupt data received: {raw_data}")
+                        if self.corrupt_count > 3:
+                            print("[DEBUG] Corrupt data threshold exceeded, restarting serial...")
+                            self.restart_serial()
+                        return False
 
-            print("[DEBUG] Extracting data from regex match...")
-            soil_set_num = int(match.group(1))
-            if soil_set_num > 1000:
-                print(f"[DEBUG] Invalid set number detected ({soil_set_num}), ignoring...")
-                return False  # Indicate failure
+                # Stop logging if no new data arrives for 5 seconds
+                if time.time() - last_received_time > 5:
+                    print("[DEBUG] No new data for 5 seconds. Stopping log.")
+                    break
 
-            soil_set = self.get_set(soil_set_num)
+                time.sleep(0.1)
 
-            moisture = int(match.group(2))
-            moisture_percent = int(match.group(3))
-            temperature = float(match.group(4))
+            if not buffer:
+                print("[DEBUG] No valid data received. Exiting.")
+                return False
 
-            print(
-                f"[DEBUG] Parsed values - Set: {soil_set_num}, Moisture: {moisture}, Moisture %: {moisture_percent}, Temperature: {temperature}")
+            print(f"[DEBUG] Logging {len(buffer)} entries...")
 
-            if not self.validate_data(moisture, moisture_percent, temperature):
-                print(f"[DEBUG] Skipping invalid data: {line}")
-                return False  # Indicate failure
+            for line in buffer:
+                match = re.search(self.pattern, line)
+                if not match:
+                    print(f"[DEBUG] Skipping unrecognized format: {line}")
+                    continue
 
-            print("[DEBUG] Updating soil set...")
-            soil_set.update_data(moisture, moisture_percent, temperature)
-            self.corrupt_count = 0  # Reset error counter
+                soil_set_num = int(match.group(1))
+                if soil_set_num > 1000:
+                    print(f"[DEBUG] Invalid set number detected ({soil_set_num}), ignoring...")
+                    continue
+
+                soil_set = self.get_set(soil_set_num)
+
+                moisture = int(match.group(2))
+                moisture_percent = int(match.group(3))
+                temperature = float(match.group(4))
+
+                print(
+                    f"[DEBUG] Parsed values - Set: {soil_set_num}, Moisture: {moisture}, Moisture %: {moisture_percent}, Temperature: {temperature}"
+                )
+
+                if not self.validate_data(moisture, moisture_percent, temperature):
+                    print(f"[DEBUG] Skipping invalid data: {line}")
+                    continue
+
+                print("[DEBUG] Updating soil set...")
+                soil_set.update_data(moisture, moisture_percent, temperature)
+
+            self.corrupt_count = 0
             print("[DEBUG] log_soil_data() completed successfully")
-            return True  # Indicate success
+            return True
 
         except KeyboardInterrupt:
             print("[DEBUG] Stopping script...")
