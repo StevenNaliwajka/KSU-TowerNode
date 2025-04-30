@@ -1,7 +1,7 @@
-from generic_file_io.csv_manager.csv_append import csv_append
-
 from Codebase.SupportMethods.get_current_date import get_current_date
 from Codebase.SupportMethods.get_current_time import get_current_time
+import csv
+
 
 class SoilSet:
     def __init__(self, soil_set_num: int, csv_path: str) -> None:
@@ -34,14 +34,14 @@ class SoilSet:
             'Depth': 'Depth',
             'Set Number': 'Set Number'
         }
-        csv_append(self.csv_path, data)
+        self.csv_append(self.csv_path, data)
 
         metadata = {
             'Date': get_current_date(),
             'Depth': self.depth,
             'Set Number': self.soil_set
         }
-        csv_append(self.csv_path, metadata)
+        self.csv_append(self.csv_path, metadata)
 
         # Add blank row
         # csv_append(self.csv_path, {}, separator=True)
@@ -54,7 +54,7 @@ class SoilSet:
             'Soil Moisture (%)': "Soil Moisture (%)",
             'Soil Temperature (°C)': "Soil Temperature (°C)",
         }
-        csv_append(self.csv_path, column_headers)
+        self.csv_append(self.csv_path, column_headers)
 
     def log_to_csv(self) -> None:
         time = get_current_time()
@@ -69,11 +69,29 @@ class SoilSet:
                 'Soil Moisture (%)': self.moisture_percent,
                 'Soil Temperature (°C)': self.temperature,
             }
-            csv_append(self.csv_path, data)
+            self.csv_append(self.csv_path, data)
             print("Logging SoilData to CSV Complete")
 
         except Exception as e:
             print(f"Error logging SoilData to CSV: {e}")
             import traceback
             traceback.print_exc()
+
+    def csv_append(self, file_path: str, row: dict, separator: bool = False) -> None:
+        # If separator is requested, write a blank row
+        if separator:
+            with open(file_path, 'a', newline='') as f:
+                f.write("\n")
+            return
+
+        # Append the row
+        with open(file_path, 'a', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=row.keys())
+
+            # Write header only if file is empty
+            if f.tell() == 0:
+                writer.writeheader()
+
+            writer.writerow(row)
+
 
