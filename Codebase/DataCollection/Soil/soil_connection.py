@@ -1,12 +1,13 @@
 import re
+import subprocess
 import time
 import traceback
+from pathlib import Path
 
 import serial
 import atexit
 
-from Codebase.DataCollection.Soil.soil_set import SoilSet
-from Codebase.FileIO.CSV.create_csv import create_csv
+from Codebase.DataCollection.Data.soil_set import SoilSet
 
 
 class SoilConnection:
@@ -165,7 +166,17 @@ class SoilConnection:
         while len(self.set_list) <= set_num:
             self.set_list.append(None)
 
-        csv_path = create_csv(self.csv_type, set_num)
+        # Call the Bash script to create CSV
+        script_path = Path(__file__).resolve().parents[2] / "Codebase/Setup/create_csv_file.sh"
+        result = subprocess.run(
+            [str(script_path), self.csv_type, str(set_num)],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # get output path
+        csv_path = result.stdout.strip()
         self.set_list[set_num] = SoilSet(set_num, csv_path)
         return self.set_list[set_num]
 
