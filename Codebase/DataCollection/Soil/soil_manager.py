@@ -10,7 +10,7 @@ sys.path.append(str(PROJECT_ROOT))
 
 import time
 
-from Codebase.DataCollection.Connection.soil_connection import SoilConnection
+from Codebase.DataCollection.Soil.soil_connection import SoilConnection
 
 
 def soil_manager():

@@ -6,4 +6,5 @@ Collects 3 datasets (Documentation Hyperlinked):
 - [SoilData](https://github.com/StevenNaliwajka/KSUFieldStation/blob/main/DataCollection/SoilData/README.md)
 - [AtmosphericData](https://github.com/StevenNaliwajka/KSUFieldStation/blob/main/DataCollection/AtmosphericData/README.md)
 
-Collects data and ships it off to 
+Collects data and ships it off to [KSU-OfficeNode](https://github.com/StevenNaliwajka/KSU-OfficeNode)
+

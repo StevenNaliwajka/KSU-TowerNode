@@ -5,7 +5,7 @@ import traceback
 import serial
 import atexit
 
-from Codebase.DataCollection.Data.soil_set import SoilSet
+from Codebase.DataCollection.Soil.soil_set import SoilSet
 from Codebase.FileIO.CSV.create_csv import create_csv
 
 
